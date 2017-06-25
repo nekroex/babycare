@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
+import org.rocksdb.RocksIterator;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -55,6 +56,7 @@ public class RocksdbTest {
         db.put(key, value);
         byte[] bytes = db.get(key);
         Assert.assertTrue(Arrays.equals(value, bytes));
+        db.delete(key);
     }
 
     @Test
@@ -81,6 +83,41 @@ public class RocksdbTest {
                 Assert.assertTrue(Arrays.equals(value, value2));
             }
         }
+        db.delete(key1);
+        db.delete(key2);
     }
+
+    @Test
+    public void iterator() throws RocksDBException {
+        byte[] key1 = "iterator1".getBytes();
+        byte[] key2 = "iterator2".getBytes();
+
+        byte[] value1 = "iterator1".getBytes();
+        byte[] value2 = "iterator2".getBytes();
+
+        db.put(key1, value1);
+        db.put(key2, value2);
+
+        RocksIterator rocksIterator = db.newIterator();
+
+        int i = 0;
+
+        for(rocksIterator.seekToFirst(); rocksIterator.isValid(); rocksIterator.next()) {
+            i++;
+            byte[] key = rocksIterator.key();
+            if(Arrays.equals(key, key1)) {
+                Assert.assertTrue(Arrays.equals(value1, rocksIterator.value()));
+            } else if (Arrays.equals(key, key2)) {
+                Assert.assertTrue(Arrays.equals(value2, rocksIterator.value()));
+            }
+        }
+
+        Assert.assertEquals(2, i);
+
+        db.delete(key1);
+        db.delete(key2);
+
+    }
+
 
 }
