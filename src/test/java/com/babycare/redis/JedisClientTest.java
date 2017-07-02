@@ -15,9 +15,7 @@ public class JedisClientTest {
         jedis.set("mom","shuyuan");
         String value = jedis.get("mom");
         System.out.println(value);
-
     }
-
 
 
 }
